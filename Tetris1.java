@@ -5,6 +5,9 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -24,6 +27,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+
 public class Tetris1 extends Frame{
 	//boolean changeM = false;
 	//boolean changeN = false;
@@ -38,6 +44,20 @@ public class Tetris1 extends Frame{
 	public double speed = 1;
 	public int xP, xQ, yP, yQ, xS, yS;
 	
+	Parameter i = new Parameter();
+	
+	public static int setScore(int x){
+		return x+1;
+    }
+	
+	public static int setDiff(int x){
+		return x*5+20;
+	}
+	
+	public static double setSpeed(double x){
+		return 0.1*(x+1);
+	}
+	
 	
 	Point mouse = new Point();
 	public static Random r = new Random();
@@ -50,10 +70,9 @@ public class Tetris1 extends Frame{
 	List<square>ss = new ArrayList<square>();
 	
 	Shape s = null;
-	Parameter pa = new Parameter();
 
 	public void lancher(){
-		//this.setLocation(x, y);
+		//this.setLocation(x, y); 
 		this.setSize(600,600);
 		this.setTitle("Tetris Game");
 		this.setVisible(true);
@@ -74,11 +93,6 @@ public class Tetris1 extends Frame{
 		nextType = r.nextInt(7);
 		nextTypeChangeStep = r.nextInt(4);
 		nextShape = new Shape(390,80, nextType, nextTypeChangeStep, this);
-		Parameter i = new Parameter();
-		
-		S = 0.1*(i.jcb3.getSelectedIndex()+1);
-        M = i.jcb1.getSelectedIndex()+1;
-        N = i.jcb2.getSelectedIndex()*5+20;
 		
 		
 		new Thread(new paintThread()).start();
@@ -89,6 +103,12 @@ public class Tetris1 extends Frame{
 	
 	public void paint(Graphics g){
 		//Parameter j = new Parameter();
+		//S = 0.1*(i.jcb3.getSelectedIndex()+1);
+		//System.out.println(S);
+        //M = i.jcb1.getSelectedIndex()+1;
+        //System.out.println(M);
+        //N = i.jcb2.getSelectedIndex()*5+20;
+        //System.out.println(N);
 		
         if(xP<=300){
 			s.paused = true;
@@ -208,14 +228,24 @@ public class Tetris1 extends Frame{
 			// TODO Auto-generated method stub
 			
 		}
-		
-		
-		
 	}
 	
 	public class MouseWheelEventDemo implements MouseWheelListener {
 		public void mouseWheelMoved(MouseWheelEvent e){
 			s.mouseWheelMoved(e);
+		}
+	}
+	
+	public class itemListener implements ItemListener {
+
+		public void itemStateChanged(ItemEvent e) {
+
+		   if (e.getStateChange() == ItemEvent.SELECTED) {
+		    JComboBox jcb = (JComboBox) e.getSource();
+
+		    //System.out.println((String) (jcb.getSelectedItem()));
+		    //System.out.println(jcb.getSelectedIndex());
+		   } 
 		}
 	}
 	
@@ -276,30 +306,34 @@ public class Tetris1 extends Frame{
 	   return b; 
 	}
 	
-	public class Parameter extends JFrame{
+	public class Parameter extends JFrame implements ActionListener, ItemListener{
 		JList jlist;    //列表框  
 	    JComboBox jcb1,jcb2,jcb3;  //下拉框  
 	    JPanel jp1, jp2, jp3;    //面板  
 	    JLabel jlb1, jlb2, jlb3;  
-	    JScrollPane jsp;    //滚动控件  
-	      
+	     
+	    
 	    //构造函数  
 	    public Parameter(){  
+	    	
 	        jp1 = new JPanel();  
 	        jp2 = new JPanel(); 
 	        jp3 = new JPanel();
 	          
 	        jlb1 = new JLabel("scoring factor：");  
 	        String str1[] = {"1","2","3", "4","5","6","7","8","9","10"};  
-	        jcb1 = new JComboBox(str1);  
-	          
+	        jcb1 = new JComboBox(str1);
+	        jcb1.addItemListener(this);
+	        
 	        jlb2 = new JLabel("difficulty：");  
 	        String str2[] = {"20", "25", "30", "35", "40", "45", "50"};  
-	        jcb2 = new JComboBox(str2);  
+	        jcb2 = new JComboBox(str2);
+	        jcb2.addItemListener(this);
 	        
 	        jlb3 = new JLabel("speed factor: ");
 	        String str3[] = {"0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1.0"};
 	        jcb3 = new JComboBox(str3);
+	        jcb3.addItemListener(this);
 	         
 	        //jsp = new JScrollPane(jlist);  
 	          
@@ -312,8 +346,7 @@ public class Tetris1 extends Frame{
 	        jp3.add(jlb3);
 	        jp3.add(jcb3);
 	        
-	        //int  = jcb1.getSelectedIndex();
-	           
+	        //int  = jcb1.getSelectedIndex()
 	        this.setLayout(new GridLayout(3, 1));  
 	          
 	        this.add(jp1);  
@@ -325,7 +358,38 @@ public class Tetris1 extends Frame{
 	        this.setTitle("Parameter Setting");  
 	        this.setVisible(true);  
 	        //this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
-	    }  
+	    }
+	    
+	    
+
+		public void itemStateChanged(ItemEvent e) {
+			// TODO Auto-generated method stub
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				if((JComboBox)e.getSource()==jcb1){
+					int m  = i.jcb1.getSelectedIndex();
+			        //M = i.jcb1.getSelectedIndex()+1;
+					M = setScore(m);
+			        System.out.println(M);
+				}
+				if((JComboBox)e.getSource()==jcb2){
+					//N = i.jcb2.getSelectedIndex()*5+20;
+					int n = i.jcb2.getSelectedIndex();
+					N = setDiff(n);
+			        System.out.println(N);
+				}
+				if((JComboBox)e.getSource()==jcb3){
+					//S = 0.1*(i.jcb3.getSelectedIndex()+1);
+					int s = i.jcb3.getSelectedIndex();
+					S = setSpeed((double)s);
+					System.out.println(S);
+				}
+			}
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			
+		}  
 	}
 }
 
